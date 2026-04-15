@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Student Manager</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#f5f5f5;
+    text-align:center;
+}
+
+input{
+    padding:10px;
+    margin:5px;
+}
+
+button{
+    padding:10px 15px;
+    margin:5px;
+    cursor:pointer;
+}
+
+table{
+    margin:auto;
+    margin-top:20px;
+    border-collapse:collapse;
+    width:80%;
+    background:white;
+}
+
+th{
+    background:#007bff;
+    color:white;
+}
+
+th,td{
+    padding:10px;
+    border:1px solid #ddd;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Student Management System</h2>
+
+<input id="name" placeholder="Name">
+<input id="dept" placeholder="Department">
+<input id="year" placeholder="Year">
+
+<br>
+
+<button onclick="addStudent()">Add</button>
+<button onclick="showStudents()">Show</button>
+<button onclick="clearAll()">Clear</button>
+
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Dept</th>
+<th>Year</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="table"></tbody>
+</table>
+
+<script>
+
+// LOAD SAFE
+let students;
+try {
+    students = JSON.parse(localStorage.getItem("students")) || [];
+} catch {
+    students = [];
+}
+
+// SAVE
+function saveData(){
+    localStorage.setItem("students", JSON.stringify(students));
+}
+
+// ADD
+function addStudent(){
+
+    const name = document.getElementById("name").value;
+    const dept = document.getElementById("dept").value;
+    const year = document.getElementById("year").value;
+
+    if(name === "" || dept === "" || year === ""){
+        alert("Fill all fields");
+        return;
+    }
+
+    const student = {
+        id: Date.now(),
+        name,
+        dept,
+        year
+    };
+
+    students.push(student);
+    saveData();
+
+    alert("Added Successfully");
+    showStudents();
+}
+
+// SHOW
+function showStudents(){
+
+    const table = document.getElementById("table");
+    table.innerHTML = "";
+
+    students.forEach(s => {
+        table.innerHTML += `
+        <tr>
+            <td>${s.id}</td>
+            <td>${s.name}</td>
+            <td>${s.dept}</td>
+            <td>${s.year}</td>
+            <td>
+                <button onclick="editStudent(${s.id})">Edit</button>
+                <button onclick="deleteStudent(${s.id})">Delete</button>
+            </td>
+        </tr>`;
+    });
+}
+
+// DELETE
+function deleteStudent(id){
+
+    students = students.filter(s => s.id !== id);
+    saveData();
+
+    alert("Deleted Successfully");
+    showStudents();
+}
+
+// EDIT
+function editStudent(id){
+
+    const student = students.find(s => s.id === id);
+
+    const newName = prompt("Edit Name:", student.name);
+    const newDept = prompt("Edit Dept:", student.dept);
+    const newYear = prompt("Edit Year:", student.year);
+
+    if(newName && newDept && newYear){
+        student.name = newName;
+        student.dept = newDept;
+        student.year = newYear;
+
+        saveData();
+        showStudents();
+    }
+}
+
+// CLEAR
+function clearAll(){
+    localStorage.removeItem("students");
+    students = [];
+    showStudents();
+}
+
+// AUTO LOAD
+showStudents();
+
+</script>
+
+</body>
+</html>
